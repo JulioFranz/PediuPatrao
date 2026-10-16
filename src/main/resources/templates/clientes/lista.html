@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Clientes</h2>
+        <a href="/clientes/novo" class="btn btn-primary" th:if="${podeEditarClientes}">Novo Cliente</a>
+    </div>
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+    <p class="text-muted small">A exclusão de clientes está bloqueada para os perfis desta atividade. O histórico dos pedidos é preservado.</p>
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark"><tr><th>Nome</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(clientes)}"><td colspan="4" class="text-center py-4">Nenhum cliente cadastrado.</td></tr>
+                    <tr th:each="cliente : ${clientes}">
+                        <td th:text="${cliente.nome}"></td>
+                        <td th:text="${cliente.telefone}"></td>
+                        <td>
+                            <span th:if="${cliente.logradouro != null}" th:text="${cliente.logradouro}"></span>
+                            <span th:if="${cliente.numero != null}" th:text="${' ' + cliente.numero}"></span>
+                            <span th:if="${cliente.complemento != null}" th:text="${' ' + cliente.complemento}"></span>
+                            <span th:if="${cliente.bairro != null}" th:text="${' ' + cliente.bairro}"></span>
+                            <span th:if="${cliente.cidade != null}" th:text="${' ' + cliente.cidade}"></span>
+                            <span th:if="${cliente.estado != null}" th:text="${' ' + cliente.estado}"></span>
+                            <span th:if="${cliente.logradouro == null}" th:text="${cliente.endereco}"></span>
+                        </td>
+                        <td>
+                            <a th:if="${podeEditarClientes}" th:href="@{/clientes/editar/{id}(id=${cliente.id})}"
+                               class="btn btn-sm btn-outline-primary">Editar</a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled
+                                    title="Exclusão bloqueada para os perfis desta atividade">Excluir</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Novo Pedido</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/pedidos" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold mb-0">Novo Pedido</h2>
+    </div>
+
+    <div class="alert alert-info" th:if="${#lists.isEmpty(clientes) or #lists.isEmpty(produtos)}">
+        Cadastre pelo menos um cliente e um produto antes de registrar um pedido.
+    </div>
+
+    <div class="card shadow-sm" style="max-width: 780px;">
+        <div class="card-body p-4">
+            <form th:action="@{/pedidos/salvar}" method="post">
+                <div class="mb-3">
+                    <label for="clienteId" class="form-label">Cliente</label>
+                    <select id="clienteId" name="clienteId" class="form-select" required>
+                        <option value="" disabled selected>Selecione um cliente</option>
+                        <option th:each="cliente : ${clientes}"
+                                th:value="${cliente.id}"
+                                th:text="${cliente.nome}"></option>
+                    </select>
+                </div>
+                <div id="itensPedido">
+                    <div class="item-pedido border rounded p-3 mb-3">
+                        <label class="form-label d-block">Produto do item
+                            <select name="produtoId" class="form-select mt-1" required>
+                                <option value="" disabled selected>Selecione um produto</option>
+                                <option th:each="produto : ${produtos}"
+                                        th:value="${produto.id}"
+                                        th:attr="data-preco=${produto.preco}"
+                                        th:text="${produto.nome + ' - R$ ' + #numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}"></option>
+                            </select>
+                        </label>
+                        <div class="d-flex align-items-end gap-3 mt-2">
+                            <label class="form-label mb-0">Quantidade
+                                <input name="quantidade" type="number" class="form-control mt-1"
+                                       min="1" step="1" value="1" required>
+                            </label>
+                            <button type="button" class="remover-item btn btn-outline-danger" disabled>Remover item</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="adicionarItem" class="btn btn-outline-primary mb-3">Adicionar produto</button>
+                <p class="fw-bold">Total dos itens: <span id="totalItens">R$ 0,00</span></p>
+                <button type="submit" class="btn btn-primary"
+                        th:disabled="${#lists.isEmpty(clientes) or #lists.isEmpty(produtos)}">
+                    Registrar Pedido
+                </button>
+                <a href="/pedidos" class="btn btn-outline-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+    <script>
+        const itensPedido = document.getElementById('itensPedido');
+        const modeloItem = itensPedido.querySelector('.item-pedido').cloneNode(true);
+
+        function atualizarItens() {
+            const itens = itensPedido.querySelectorAll('.item-pedido');
+            let total = 0;
+            itens.forEach(item => {
+                const produto = item.querySelector('select');
+                const preco = Number(produto.selectedOptions[0]?.dataset.preco || 0);
+                const quantidade = Number(item.querySelector('input').value);
+                total += preco * quantidade;
+                item.querySelector('.remover-item').disabled = itens.length === 1;
+            });
+            document.getElementById('totalItens').textContent = total.toLocaleString('pt-BR', {
+                style: 'currency', currency: 'BRL'
+            });
+        }
+
+        document.getElementById('adicionarItem').addEventListener('click', () => {
+            itensPedido.appendChild(modeloItem.cloneNode(true));
+            atualizarItens();
+        });
+        itensPedido.addEventListener('click', event => {
+            if (event.target.classList.contains('remover-item')) {
+                event.target.closest('.item-pedido').remove();
+                atualizarItens();
+            }
+        });
+        itensPedido.addEventListener('input', atualizarItens);
+        itensPedido.addEventListener('change', atualizarItens);
+    </script>
+</div>
+</body>
+</html>

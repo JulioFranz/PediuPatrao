@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lista de Pedidos</title>
+</head>
+<body>
+
+<div th:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-bag me-2 text-primary"></i>Pedidos
+        </h2>
+        <a href="/pedidos/novo" class="btn btn-primary" th:if="${podeRegistrarPedido}">
+            <i class="bi bi-plus-lg me-1"></i> Novo Pedido
+        </a>
+    </div>
+
+    <!-- Mensagens de feedback -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${sucesso}" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${erro}" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Cliente ID</th>
+                        <th>Itens</th>
+                        <th>Total</th>
+                        <th>Desconto</th>
+                        <th>Registrado por</th>
+                        <th>Entrada</th>
+                        <th>Saída</th>
+                        <th>Status</th>
+                        <th th:if="${podeAlterarStatus}">Atualizar status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lista vazia -->
+                    <tr th:if="${#lists.isEmpty(pedidos)}">
+                        <td th:colspan="${podeAlterarStatus} ? 10 : 9" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Nenhum pedido encontrado.
+                        </td>
+                    </tr>
+                    <!-- Linhas -->
+                    <tr th:each="pedido : ${pedidos}">
+                        <td class="ps-4 text-muted" th:text="${pedido.id}"></td>
+                        <td th:text="${pedido.clienteId}"></td>
+                        <td>
+                            <div th:if="${pedido.itens != null and !#lists.isEmpty(pedido.itens)}"
+                                 th:each="item : ${pedido.itens}"
+                                 th:text="${item.nomeProduto + ' x' + item.quantidade}"></div>
+                            <span th:if="${pedido.itens == null or #lists.isEmpty(pedido.itens)}"
+                                  th:text="${pedido.tipoPizza != null} ? ${pedido.tipoPizza + ' ' + pedido.sabor} : '—'"></span>
+                        </td>
+                        <td th:text="${pedido.valorTotal != null ? 'R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 2) : '—'}"></td>
+                        <td>
+                            <span th:text="${pedido.descontoPercentual != null ? pedido.descontoPercentual + '%' : '—'}"></span>
+                            <form th:if="${podeAlterarStatus and pedido.podeAplicarDesconto}"
+                                  th:action="@{/pedidos/{id}/desconto(id=${pedido.id})}" method="post"
+                                  class="d-flex gap-2 mt-1">
+                                <input type="number" name="percentual" min="0" max="20" step="0.01"
+                                       th:value="${pedido.descontoPercentual}" aria-label="Desconto em percentual"
+                                       class="form-control form-control-sm" style="min-width: 75px;" required>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Aplicar</button>
+                            </form>
+                        </td>
+                        <td th:text="${pedido.responsavelRegistro != null} ? ${pedido.responsavelRegistro} : '—'"></td>
+                        <td th:text="${pedido.dataHoraEntrada != null ? #dates.format(pedido.dataHoraEntrada, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                        <td th:text="${pedido.dataHoraSaida != null ? #dates.format(pedido.dataHoraSaida, 'dd/MM/yyyy HH:mm') + ' - ' + pedido.responsavelSaida : '—'}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${pedido.status == 'FINALIZADO'} ? 'bg-success' :
+                                                  (${pedido.status == 'CANCELADO'} ? 'bg-danger' :
+                                                  (${pedido.status == 'EM_PREPARACAO' or pedido.status == 'PRONTO'} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                                  th:text="${pedido.statusDescricao}">
+                            </span>
+                            <div class="small mt-1" th:if="${pedido.justificativaCancelamento != null}"
+                                 th:text="${pedido.justificativaCancelamento}"></div>
+                        </td>
+                        <td th:if="${podeAlterarStatus}">
+                            <form th:if="${!#lists.isEmpty(pedido.proximosStatus)}"
+                                  th:action="@{/pedidos/{id}/status(id=${pedido.id})}" method="post"
+                                  class="form-status d-flex flex-column gap-2" style="min-width: 185px;">
+                                <select name="status" aria-label="Próximo status" class="form-select form-select-sm">
+                                    <option th:each="statusOpcao : ${pedido.proximosStatus}"
+                                            th:value="${statusOpcao.name()}"
+                                            th:text="${statusOpcao.descricao}"></option>
+                                </select>
+                                <input type="text" name="justificativa" class="form-control form-control-sm"
+                                       maxlength="300" placeholder="Justificativa se cancelar" hidden>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Salvar</button>
+                            </form>
+                            <span class="text-muted small" th:if="${#lists.isEmpty(pedido.proximosStatus)}">Sem novas alterações</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer text-muted small" th:if="${!#lists.isEmpty(pedidos)}">
+            Total: <strong th:text="${#lists.size(pedidos)}"></strong> pedido(s)
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.form-status').forEach(form => {
+            const status = form.querySelector('select');
+            const justificativa = form.querySelector('[name="justificativa"]');
+            function atualizarJustificativa() {
+                const cancelar = status.value === 'CANCELADO';
+                justificativa.hidden = !cancelar;
+                justificativa.required = cancelar;
+            }
+            status.addEventListener('change', atualizarJustificativa);
+            atualizarJustificativa();
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

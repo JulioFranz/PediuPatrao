@@ -1,0 +1,14 @@
+package com.umc.pediupatrao.entity;
+
+public class AlteracaoAuditoria {
+    private String campo;
+    private String valorAnterior;
+    private String valorNovo;
+
+    public String getCampo() { return campo; }
+    public void setCampo(String campo) { this.campo = campo; }
+    public String getValorAnterior() { return valorAnterior; }
+    public void setValorAnterior(String valorAnterior) { this.valorAnterior = valorAnterior; }
+    public String getValorNovo() { return valorNovo; }
+    public void setValorNovo(String valorNovo) { this.valorNovo = valorNovo; }
+}

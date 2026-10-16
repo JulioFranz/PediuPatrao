@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2 class="fw-bold mb-4" th:text="${funcionario.id != null ? 'Editar Cadastro' : (entregadores ? 'Novo Entregador' : 'Novo Funcionário')}"></h2>
+    <div class="card shadow-sm" style="max-width: 540px;">
+        <div class="card-body p-4">
+            <form th:action="${funcionario.id != null} ? @{/funcionarios/editar/{id}(id=${funcionario.id})} : @{/funcionarios/salvar}"
+                  th:object="${funcionario}" method="post">
+                <input type="hidden" name="entregadores" th:value="${entregadores}">
+                <label class="form-label" for="nome">Nome</label>
+                <input id="nome" class="form-control mb-3" th:field="*{nome}" maxlength="100" required>
+                <label class="form-label" for="telefone">Telefone</label>
+                <input id="telefone" class="form-control mb-3" th:field="*{telefone}" maxlength="20" placeholder="DDD e telefone" required>
+                <label class="form-label" for="cargo">Cargo</label>
+                <input id="cargo" class="form-control mb-3" th:field="*{cargo}" maxlength="50" th:readonly="${entregadores}" required>
+                <div class="form-check mb-3">
+                    <input id="ativo" type="checkbox" class="form-check-input" th:field="*{ativo}">
+                    <label for="ativo" class="form-check-label">Ativo</label>
+                </div>
+                <button class="btn btn-primary" type="submit">Salvar Cadastro</button>
+                <a class="btn btn-outline-secondary" th:href="${entregadores ? '/entregadores' : '/funcionarios'}">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

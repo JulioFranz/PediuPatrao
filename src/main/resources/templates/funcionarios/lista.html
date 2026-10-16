@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" th:text="${entregadores ? 'Entregadores' : 'Funcionários'}"></h2>
+        <a class="btn btn-primary" th:href="@{/funcionarios/novo(entregadores=${entregadores})}"
+           th:text="${entregadores ? 'Novo Entregador' : 'Novo Funcionário'}"></a>
+    </div>
+    <p class="text-muted">Cadastro da equipe. O acesso ao sistema é criado separadamente em Usuários.</p>
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark"><tr><th>Nome</th><th>Telefone</th><th>Cargo</th><th>Ativo</th><th>Ações</th></tr></thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(funcionarios)}"><td colspan="5" class="text-center py-4">Nenhum cadastro por aqui.</td></tr>
+                    <tr th:each="funcionario : ${funcionarios}">
+                        <td th:text="${funcionario.nome}"></td>
+                        <td th:text="${funcionario.telefone}"></td>
+                        <td th:text="${funcionario.cargo}"></td>
+                        <td th:text="${funcionario.ativo ? 'Sim' : 'Não'}"></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary"
+                               th:href="@{/funcionarios/editar/{id}(id=${funcionario.id},entregadores=${entregadores})}">Editar</a>
+                            <form class="d-inline" th:action="@{/funcionarios/excluir/{id}(id=${funcionario.id})}" method="post"
+                                  onsubmit="return confirm('Excluir este cadastro da equipe?');">
+                                <input type="hidden" name="entregadores" th:value="${entregadores}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

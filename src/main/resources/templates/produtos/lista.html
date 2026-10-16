@@ -1,0 +1,115 @@
+<div th:fragment="content" xmlns:th="http://www.thymeleaf.org" class="container mt-5">
+    <h1 class="mb-4">Gestão de Produtos</h1>
+    <div class="alert alert-success" th:if="${param.salvo}">Produto salvo com sucesso!</div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+    <div class="alert alert-danger" id="erroProduto" role="alert" hidden></div>
+
+    <button th:if="${podeGerenciarConfig}" class="btn btn-primary mb-3" data-bs-toggle="collapse" data-bs-target="#formularioProduto">
+        Novo Produto
+    </button>
+
+    <div th:if="${podeGerenciarConfig}" class="collapse" id="formularioProduto">
+        <div class="card card-body">
+            <form th:action="@{/api/produtos}" method="post" id="produtoForm">
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome do Produto</label>
+                    <input type="text" id="nome" name="nome" maxlength="100" class="form-control" placeholder="Nome do Produto" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tipo" class="form-label">Tipo do Produto</label>
+                    <select id="tipo" name="tipo" class="form-select" required>
+                        <option value="" disabled selected>Selecione o Tipo</option>
+                        <option value="Pizza">Pizza</option>
+                        <option value="Lanche">Lanche</option>
+                        <option value="Bebida">Bebida</option>
+                        <option value="Porção">Porção</option>
+                        <option value="Adicional">Adicional</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="preco" class="form-label">Preço</label>
+                    <input type="number" id="preco" name="preco" min="0" class="form-control" placeholder="Preço (R$)" step="0.01" required>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="ativo" name="ativo" class="form-check-input" checked>
+                    <label for="ativo" class="form-check-label">Produto Ativo</label>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Preço</th>
+                <th>Ativo</th>
+                <th th:if="${podeGerenciarConfig}">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="produto : ${produtos}">
+                <td th:text="${produto.id}"></td>
+                <td th:text="${produto.nome}"></td>
+                <td th:text="${produto.tipo}"></td>
+                <td th:text="${produto.preco != null ? 'R$ ' + #numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA') : '-'}"></td>
+                <td th:text="${produto.ativo != false ? 'Sim' : 'Não'}">Sim</td>
+                <td th:if="${podeGerenciarConfig}">
+                    <a th:href="@{/produtos/editar/{id}(id=${produto.id})}" class="btn btn-warning btn-sm">Editar</a>
+                    <button type="button" th:attr="data-id=${produto.id}" class="excluir-produto btn btn-danger btn-sm">Excluir</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        document.getElementById('produtoForm')?.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const produto = {
+                nome: document.getElementById('nome').value,
+                tipo: document.getElementById('tipo').value,
+                preco: Number(document.getElementById('preco').value),
+                ativo: document.getElementById('ativo').checked
+            };
+            try {
+                const resposta = await fetch(this.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...cabecalhosCsrf() },
+                    body: JSON.stringify(produto)
+                });
+                if (!resposta.ok) {
+                    throw new Error(await resposta.text() || 'Não foi possível salvar o produto.');
+                }
+                window.location.href = '/produtos?salvo';
+            } catch (erro) {
+                const aviso = document.getElementById('erroProduto');
+                aviso.textContent = erro.message;
+                aviso.hidden = false;
+            }
+        });
+        document.querySelectorAll('.excluir-produto').forEach(botao => {
+            botao.addEventListener('click', async () => {
+                if (!confirm('Excluir este produto do cadastro? Os pedidos já registrados serão preservados.')) return;
+                try {
+                    const resposta = await fetch('/api/produtos/' + botao.dataset.id, {
+                        method: 'DELETE', headers: cabecalhosCsrf()
+                    });
+                    if (!resposta.ok) throw new Error('Não foi possível excluir o produto.');
+                    window.location.reload();
+                } catch (erro) {
+                    const aviso = document.getElementById('erroProduto');
+                    aviso.textContent = erro.message;
+                    aviso.hidden = false;
+                }
+            });
+        });
+    </script>
+</div>

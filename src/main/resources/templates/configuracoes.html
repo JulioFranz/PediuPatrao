@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2 class="fw-bold mb-4">Configurações</h2>
+    <div class="list-group" style="max-width: 600px;">
+        <a th:if="${podeGerenciarConfig}" href="/funcionarios" class="list-group-item list-group-item-action">Funcionários</a>
+        <a th:if="${podeGerenciarConfig}" href="/entregadores" class="list-group-item list-group-item-action">Entregadores</a>
+        <a th:if="${podeGerenciarConfig}" href="/horarios" class="list-group-item list-group-item-action">Horário de Funcionamento</a>
+        <a href="/produtos" class="list-group-item list-group-item-action">Produtos</a>
+        <a th:if="${podeGerenciarUsuarios}" href="/usuarios" class="list-group-item list-group-item-action">Usuários</a>
+        <a th:if="${podeVerAuditoria}" href="/auditoria" class="list-group-item list-group-item-action">Auditoria</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2 class="fw-bold mb-3">Horário de Funcionamento</h2>
+    <p class="text-muted">Salve cada dia separadamente. Se o fechamento for antes da abertura, o expediente termina no dia seguinte.</p>
+    <p class="text-muted small">Estes horários são informativos. O cadastro de pedidos continua disponível fora do expediente.</p>
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+    <div class="card shadow-sm" style="max-width: 900px;">
+        <div class="card-body">
+            <form th:each="horario : ${horarios}" th:action="@{/horarios/salvar}" method="post"
+                  class="horario-dia row g-3 align-items-end border-bottom pb-3 mb-3">
+                <input type="hidden" name="dia" th:value="${horario.dia}">
+                <div class="col-md-2 fw-bold" th:text="${horario.dia}"></div>
+                <div class="col-md-2">
+                    <label class="form-label d-block">Abertura
+                        <input type="time" class="form-control" name="abertura" th:value="${horario.abertura}">
+                    </label>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label d-block">Fechamento
+                        <input type="time" class="form-control" name="fechamento" th:value="${horario.fechamento}">
+                    </label>
+                </div>
+                <div class="col-md-3 pb-2">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="fechado" value="true" th:checked="${horario.fechado}"> Fechado neste dia
+                    </label>
+                </div>
+                <div class="col-md-3 pb-2"><button class="btn btn-outline-primary" type="submit">Salvar dia</button></div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.horario-dia').forEach(form => {
+            const fechado = form.querySelector('[name="fechado"]');
+            function atualizarHorario() {
+                form.querySelectorAll('input[type="time"]').forEach(input => {
+                    input.disabled = fechado.checked;
+                    input.required = !fechado.checked;
+                });
+            }
+            fechado.addEventListener('change', atualizarHorario);
+            atualizarHorario();
+        });
+    </script>
+</div>
+</body>
+</html>
