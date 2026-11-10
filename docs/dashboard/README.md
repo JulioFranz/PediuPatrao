@@ -99,10 +99,21 @@ GET /api/dashboard/produtos-mais-vendidos?inicio=2026-11-09&fim=2026-11-09
 
 A API ficou na branch `feature/api-dashboard`, criada a partir de `develop`. A tela ficou em `feature/tela-dashboard`, com a API já integrada. O serviço calcula os números em Java. O JavaScript busca os resultados e desenha os gráficos com o Chart.js do projeto. O Swagger foi incluído para testar os endpoints pelo navegador.
 
-## Testes
+## Evidências de teste
+
+Os testes foram executados em 10/11/2026. O Maven registrou 42 testes aprovados, sendo 7 do dashboard.
 
 ```powershell
 .\mvnw.cmd test
 ```
 
-Os testes do dashboard verificam cálculos, produtos, datas, dias sem vendas e permissões. Veja o [registro das verificações](evidencias.md).
+Os testes do dashboard cobrem cálculos, ranking, datas e permissões. ADMIN e GERENTE receberam 200. ATENDENTE recebeu 403 e a consulta sem sessão recebeu 401. [Saída do Maven](evidencias/testes-maven.txt)
+
+Também conferi o painel no navegador com o MongoDB local.
+
+| Teste | Resultado |
+| --- | --- |
+| Abrir como gerente e escolher 30 dias | O painel mostrou 3 pedidos, 1 finalizado, faturamento e ticket médio de R$ 45,00 e uma pizza no ranking. |
+| Consultar um período sem pedidos | Os indicadores ficaram zerados e o painel avisou que não havia dados. |
+| Informar a data inicial depois da final | O painel mostrou o aviso e manteve o último resultado válido. |
+| Consultar o resumo pelo Swagger | A API retornou 200 com os mesmos totais do painel para o período. |
