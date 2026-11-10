@@ -93,4 +93,10 @@ Os testes estão em `src/test/java`. Para executar:
 .\mvnw.cmd test
 ```
 
-São 35 testes básicos, separados em segurança, usuários, pedidos, clientes e auditoria. Eles usam dados simulados e não precisam do MongoDB ligado. A última execução terminou sem falhas ou erros.
+Os testes cobrem segurança, usuários, pedidos, clientes, auditoria e dashboard. Eles usam dados simulados e não precisam do MongoDB ligado.
+
+## Dashboard
+
+Entre como ADMIN ou GERENTE e abra **Dashboard** no menu. O painel mostra os indicadores, os gráficos e os produtos mais vendidos. O botão **Consultar API** abre o Swagger.
+
+Consulte os [requisitos, regras, endpoints e testes do dashboard](docs/dashboard/README.md).
