@@ -1,0 +1,24 @@
+#dashboard-vendas {
+    max-width: 1280px;
+    color: #192941;
+}
+
+#dashboard-vendas .painel-abertura {
+    background: linear-gradient(115deg, #15273f, #234969);
+    color: #fff;
+}
+
+#dashboard-vendas .painel-legenda {
+    color: #c4d8e9;
+}
+
+#dashboard-vendas .espaco-grafico {
+    position: relative;
+    height: 260px;
+}
+
+@media (max-width: 767px) {
+    #dashboard-vendas {
+        padding-top: 2.5rem;
+    }
+}
