@@ -4,22 +4,30 @@ import com.umc.pediupatrao.service.DashboardService;
 import com.umc.pediupatrao.service.DashboardService.ProdutoVendido;
 import com.umc.pediupatrao.service.DashboardService.Resumo;
 import com.umc.pediupatrao.service.DashboardService.VendaDia;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping(value = "/api/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
+@OpenAPIDefinition(info = @Info(title = "API de vendas do Pediu Patrão", version = "1.0"))
 @Tag(name = "Dashboard")
-@ApiResponse(responseCode = "400", description = "Período inválido")
-@ApiResponse(responseCode = "401", description = "Sessão necessária")
-@ApiResponse(responseCode = "403", description = "Perfil sem acesso")
+@ApiResponse(responseCode = "400", description = "Período inválido",
+        content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+@ApiResponse(responseCode = "401", description = "Sessão necessária", content = @Content)
+@ApiResponse(responseCode = "403", description = "Perfil sem acesso", content = @Content)
+@ApiResponse(responseCode = "500", description = "Erro ao consultar os dados", content = @Content)
 public class DashboardApiController {
     private final DashboardService dashboard;
 
