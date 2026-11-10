@@ -2,6 +2,11 @@ package com.umc.pediupatrao.config;
 
 import com.umc.pediupatrao.service.UsuarioDetailsService;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,10 +55,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(Customizer.withDefaults())
+                .exceptionHandling(erros -> erros.defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        new AntPathRequestMatcher("/api/dashboard/**"))
+                        .defaultAuthenticationEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"),
+                                AnyRequestMatcher.INSTANCE))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/error", "/css/**", "/dist/**", "/plugins/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/usuarios/**", "/api/usuarios/**", "/admin").hasRole("ADMIN")
                         .requestMatchers("/auditoria/**", "/api/auditoria/**").hasAnyRole("ADMIN", "GERENTE")
+                        .requestMatchers("/dashboard", "/api/dashboard/**", "/swagger-ui.html",
+                                "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml")
+                        .hasAnyRole("ADMIN", "GERENTE")
                         .requestMatchers("/funcionarios/**", "/entregadores/**", "/horarios/**")
                         .hasAnyRole("ADMIN", "GERENTE")
                         .requestMatchers(HttpMethod.GET, "/produtos", "/api/produtos/**").authenticated()
